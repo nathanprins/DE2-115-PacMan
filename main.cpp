@@ -66,14 +66,16 @@ void gfxLoop(void* pdata){
 	vga.clear(0);
 	vga.setColor(0x187F);
 
-	uint8_t clear = 0;
-
+	uint16_t col = 0;
 	while(1){
-		vga.setColor(clear ? 0 : 0xFFFF);
-		clear = clear ? 0 : 1;
+		vga.drawLine(0, 0, 0, 239);
+		vga.drawLine(0, 0, 319, 0);
+		vga.drawLine(0, 239, 319, 239);
+		vga.drawLine(319, 0, 319, 239);
 
-		vga.drawLine(20, 100, 39, 100);
-		OSTimeDlyHMSM(0, 0, 0, 100);
+		col = (col == 0xFFFF) ? 0x187F : 0xFFFF;
+		vga.setColor(col);
+		OSTimeDlyHMSM(0, 0, 0, 200);
 	}
 }
 
