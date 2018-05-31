@@ -11,6 +11,8 @@ ControllerInterface::ControllerInterface(){
 
 };
 
-void ControllerInterface::getActiveButton(){
-
+button_t ControllerInterface::getActiveButton(){
+	button_t temp = this->activeButton;
+	this->activeButton = BUTTON_NO_BUTTON;
+	return temp;
 };

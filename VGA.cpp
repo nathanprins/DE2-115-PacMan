@@ -11,9 +11,9 @@ VGA::VGA(short* pixel_buffer, int width, int height, int scale) : VideoInterface
 	this->pbuffer = pixel_buffer;
 };
 
-void VGA::drawPixel(int x, int y){
+void VGA::_internalDrawPixel(int x, int y, uint16_t color){
 	volatile short* pbuff = this->pbuffer;
 
 	int offset = (y << 9) + x;
-	*(pbuff + offset) = (short)this->color;
+	*(pbuff + offset) = (short)color;
 };

@@ -31,57 +31,82 @@
 #include <stdio.h>
 #include "includes.h"
 
-//#include "PacMan.h"
-//#include "Keyboard.h"
+#include "Game.h"
+#include "Keyboard.h"
+#include "PacMan.h"
 #include "VGA.h"
+#include "nios2_ctrl_reg_macros.h"
+#include <string.h>
 
 /* Definition of Task Stacks */
 #define   TASK_STACKSIZE       2048
 OS_STK    task1_stk[TASK_STACKSIZE];
+OS_STK    task2_stk[TASK_STACKSIZE];
+OS_STK    task3_stk[TASK_STACKSIZE];
 
 /* Definition of Task Priorities */
 #define TASK1_PRIORITY      1
+#define TASK2_PRIORITY      2
+#define TASK3_PRIORITY      3
 
+void JTAG(const char* str)
+{
+	volatile int * JTAG_UART_ptr 	= (int *) 0x10001000;
+	int control = *(JTAG_UART_ptr + 1);
+	while(*(str)){
+		if (control & 0xFFFF0000)
+			*(JTAG_UART_ptr) = *(str++);
+	}
+}
 
 void GameLoop(void* pdata);
 void gfxLoop(void* pdata);
+void inputLoop(void* pdata);
 
 int main(void){
+	JTAG("Starting App\r\n");
 
-//	Keyboard Controls;
-//	PacMan Game(&Controls);
+	VGA vga((short*)0x08000000, 320, 240, 1);
+	Keyboard kb;
+	Game game(&kb, &vga);
 
-	OSTaskCreate(gfxLoop,  (void*) 0, &task1_stk[TASK_STACKSIZE-1],  TASK1_PRIORITY);
-//	OSTaskCreate(GameLoop,  (void*) 0, (void *)&task1_stk[TASK_STACKSIZE-1],  TASK1_PRIORITY);
-
-
+	OSTaskCreate(gfxLoop,  (void*) &game, &task1_stk[TASK_STACKSIZE-1],  TASK1_PRIORITY);
+	OSTaskCreate(inputLoop,(void*) &kb, &task2_stk[TASK_STACKSIZE-1],  TASK2_PRIORITY);
+	OSTaskCreate(GameLoop, (void*) &game, &task3_stk[TASK_STACKSIZE-1],  TASK3_PRIORITY);
 
 	OSStart();
 	return 0;
 }
 
 void gfxLoop(void* pdata){
+	JTAG("GFX Started\r\n");
 
-	VGA vga((short*)0x08000000, 320, 240, 1);
-	vga.clear(0);
-	vga.setColor(0x187F);
-
-	uint16_t col = 0;
+	Game* game = (Game*) pdata;
 	while(1){
-		vga.drawLine(0, 0, 0, 239);
-		vga.drawLine(0, 0, 319, 0);
-		vga.drawLine(0, 239, 319, 239);
-		vga.drawLine(319, 0, 319, 239);
-
-		col = (col == 0xFFFF) ? 0x187F : 0xFFFF;
-		vga.setColor(col);
-		OSTimeDlyHMSM(0, 0, 0, 200);
+		game->draw();
+		OSTimeDlyHMSM(0, 0, 0, 100);
 	}
 }
 
-//void GameLoop(void* pdata){
-//	while (1){
-//		Game.Loop();
-//		OSTimeDlyHMSM(0, 0, 0, 100);
-//	}
-//}
+void inputLoop(void* pdata){
+	JTAG("Input polling started \r\n");
+
+	Keyboard* kb = (Keyboard*) pdata;
+
+
+	while(1)
+	{
+		kb->update();
+		OSTimeDlyHMSM(0, 0, 0, 100);
+	}
+}
+
+void GameLoop(void* pdata){
+	Game* game = (Game*) pdata;
+
+	while (1)
+	{
+		game->update(100);
+		OSTimeDlyHMSM(0, 0, 0, 100);
+	}
+}

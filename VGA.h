@@ -13,9 +13,9 @@
 class VGA: public VideoInterface {
 	public:
 		VGA(short* pixel_buffer, int width, int height, int scale);
-		void drawPixel(int x, int y);
 
 	private:
+		void _internalDrawPixel(int x, int y, uint16_t color);
 		short* pbuffer;
 };
 
