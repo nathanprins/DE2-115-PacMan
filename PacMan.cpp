@@ -10,7 +10,7 @@
 PacMan::PacMan(int x, int y) : Entity(x, y) {
 	this->width = 12;
 	this->height = 12;
-	this->dir = DIR_NO_DIR;
+	this->curr_dir = DIR_NO_DIR;
 	this->velocity = 50;
 };
 
@@ -40,57 +40,43 @@ static bool isBetween(int value, int low, int high){
 }
 
 void PacMan::_draw(VideoInterface* vi){
+	uint16_t color1;
+	uint16_t color2;
 	for(int y = 0; y < this->width; y++){
 		for(int x = 0; x < this->width; x++){
-			if(!(isBetween(prev_x + x, this->x, this->x + this->width)&&
-			   isBetween(prev_y + y, this->y, this->y + this->height)) ||
-			   (this->bmp[this->lastFrame][y][x] && !this->bmp[this->frame][(this->y - prev_y) + y][(this->x - prev_x) + x])){
-
-				if(this->prev_dir == DIR_RIGHT || this->prev_dir == DIR_NO_DIR)
-					vi->drawPixel(this->prev_x + x - 2, this->prev_y + y - 2, 0);
-				if(this->prev_dir == DIR_LEFT)
-					vi->drawPixel(this->prev_x + (this->width - 1 - x) - 2, this->prev_y + y - 2, 0);
-				if(this->prev_dir == DIR_DOWN)
-					vi->drawPixel(this->prev_x + y - 2, this->prev_y + x - 2, 0);
-				if(this->prev_dir == DIR_UP)
-					vi->drawPixel(this->prev_x + y - 2, this->prev_y + (this->height - 1 - x) - 2, 0);
-			}
+			color1 = getColor(this->last_frame, this->prev_dir, x, y);
+			color2 = getColor(this->curr_frame, this->curr_dir, (this->prev_x - this->x) + x, (this->prev_y - this->y) + y);
+			if(color1 != color2)
+				vi->drawPixel(this->prev_x + x - 2, this->prev_y + y - 2, 0);
 		}
 	}
 
 	for(int y = 0; y < this->width; y++){
 		for(int x = 0; x < this->width; x++){
-			if(this->bmp[this->frame][y][x]){
-				if(this->dir == DIR_RIGHT || this->dir == DIR_NO_DIR)
-					vi->drawPixel(this->x + x - 2, this->y + y - 2, PACMAN_COLOR);
-				if(this->dir == DIR_LEFT)
-					vi->drawPixel(this->x + (this->width - 1 - x) - 2, this->y + y - 2, PACMAN_COLOR);
-				if(this->dir == DIR_DOWN)
-					vi->drawPixel(this->x + y - 2, this->y + x - 2, PACMAN_COLOR);
-				if(this->dir == DIR_UP)
-					vi->drawPixel(this->x + y - 2, this->y + (this->height - 1 - x) - 2, PACMAN_COLOR);
-			}
+			color1 = getColor(this->curr_frame, this->curr_dir, x, y);
+			if(color1 != NULL)
+				vi->drawPixel(this->x + x - 2, this->y + y - 2, color1);
 		}
 	}
 };
 
 void PacMan::_update(int elapsedTime){
-	this->lastFrame = this->frame;
+	this->last_frame = this->curr_frame;
 
-	if(this->dir != DIR_NO_DIR){
-		if(this->frameDir){
-			if(this->frame < 2){
-				this->frame++;
+	if(this->curr_dir != DIR_NO_DIR){
+		if(this->frame_dir){
+			if(this->curr_frame < 2){
+				this->curr_frame++;
 			}else{
-				this->frame--;
-				this->frameDir = 0;
+				this->curr_frame--;
+				this->frame_dir = 0;
 			}
 		}else{
-			if(this->frame > 0){
-				this->frame--;
+			if(this->curr_frame > 0){
+				this->curr_frame--;
 			}else{
-				this->frame++;
-				this->frameDir = 1;
+				this->curr_frame++;
+				this->frame_dir = 1;
 			}
 		}
 	}

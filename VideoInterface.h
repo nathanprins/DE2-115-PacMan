@@ -27,6 +27,8 @@ class VideoInterface {
 		void setLineAlg(enum viLineAlg);
 		void drawLine(int fx, int fy, int tx, int ty);
 		void drawLine(int fx, int fy, int tx, int ty, uint16_t color);
+		void setOffset(int x, int y);
+		void resetOffset();
 		void setColor(uint16_t color);
 		void clear(uint16_t color);
 	private:
@@ -39,6 +41,8 @@ class VideoInterface {
 		int width;
 		int height;
 		int scale;
+		int x_offset;
+		int y_offset;
 };
 
 #endif /* VIDEOINTERFACE_H_ */

@@ -43,8 +43,9 @@ class Entity {
 		int height;
 		int velocity; // pixels per second
 		uint8_t redraw = 1;
-		e_dir_t dir = DIR_NO_DIR;
-		e_dir_t prev_dir;
+		e_dir_t curr_dir = DIR_NO_DIR;
+		e_dir_t prev_dir = DIR_NO_DIR;
+		e_dir_t next_dir = DIR_NO_DIR;
 };
 
 #endif /* ENTITY_H_ */

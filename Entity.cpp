@@ -12,7 +12,7 @@ Entity::Entity(int x, int y) : x(x), y(y) {
 };
 
 void Entity::update(int elapsedTime){
-	this->prev_dir = this->dir;
+	this->prev_dir = this->curr_dir;
 	this->prev_x = this->x;
 	this->prev_y = this->y;
 	this->_update(elapsedTime);
@@ -26,7 +26,7 @@ void Entity::draw(VideoInterface* vi){
 }
 
 void Entity::setDir(e_dir_t dir){
-	this->dir = dir;
+	this->curr_dir = dir;
 	this->redraw = 1;
 };
 
@@ -49,5 +49,5 @@ int Entity::getY(){
 };
 
 e_dir_t Entity::getDir(){
-	return dir;
+	return curr_dir;
 };

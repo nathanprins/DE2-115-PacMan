@@ -17,6 +17,9 @@
 #define V(y) (v*8)+y
 #define SHORTEST(a, b) (a > b ? b : a)
 
+#define MAP_OFFSET_X 76
+#define MAP_OFFSET_Y 12
+
 typedef enum {
 	em, pd,
 	c1, c2, c3, c4,
@@ -40,7 +43,7 @@ class Game {
 		void setInSquare(Entity* en, int xs, int ys);
 		void updateMovement(Entity* en, int elapsedTime);
 		void distanceToWalls(Entity* en, int* up, int* down, int* left, int* right);
-		uint8_t walkable(map_item_t item);
+		bool walkable(map_item_t item);
 		ControllerInterface* ci;
 		VideoInterface* vi;
 		PacMan player = PacMan(8, 8);

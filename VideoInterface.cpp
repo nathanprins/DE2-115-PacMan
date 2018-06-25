@@ -12,6 +12,17 @@ VideoInterface::VideoInterface(int width, int height, int scale){
 	this->height = height;
 	this->scale = scale;
 	this->viLA = BRESENHAM;
+	this->x_offset = 0;
+	this->y_offset = 0;
+};
+
+void VideoInterface::setOffset(int x, int y){
+	this->x_offset = x;
+	this->y_offset = y;
+};
+
+void VideoInterface::resetOffset(){
+	setOffset(0, 0);
 };
 
 void VideoInterface::drawPixel(int x, int y){
@@ -21,7 +32,7 @@ void VideoInterface::drawPixel(int x, int y){
 void VideoInterface::drawPixel(int x, int y, uint16_t color){
 	if(x < 0 || x > this->width - 1) return;
 	if(y < 0 || y > this->height - 1) return;
-	this->_internalDrawPixel(x, y, color);
+	this->_internalDrawPixel(this->x_offset + x, this->y_offset + y, color);
 };
 
 void VideoInterface::setColor(uint16_t color){

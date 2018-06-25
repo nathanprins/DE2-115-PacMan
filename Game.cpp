@@ -18,6 +18,7 @@ void Game::update(int elapsedTime){
 
 		int up, down, left, right;
 		distanceToWalls(&player, &up, &down, &left, &right);
+
 		switch(ci->getActiveButton()){
 			case BUTTON_UP: if(up) player.setDir(DIR_UP); break;
 			case BUTTON_DOWN: if(down) player.setDir(DIR_DOWN); break;
@@ -25,6 +26,7 @@ void Game::update(int elapsedTime){
 			case BUTTON_RIGHT: if(right) player.setDir(DIR_RIGHT); break;
 			default: break;
 		}
+
 		updateMovement(&player, elapsedTime);
 
 		int xs = player.getX() / 8.0;
@@ -84,122 +86,126 @@ void Game::updateMovement(Entity* en, int elapsedTime){
 	};
 };
 
-uint8_t Game::walkable(map_item_t item){
+bool Game::walkable(map_item_t item){
 	return (item == em || item == pd);
 };
 
 void Game::draw(){
 	switch(state){
 		case LEVEL_START:
+			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
 			drawMap();
+			vi->resetOffset();
 			state = LEVEL_RUN;
 			break;
 		case LEVEL_RUN:
+			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
 			player.draw(vi);
+			vi->resetOffset();
 			break;
 	}
 };
 
 void Game::drawMap(){
 	for(int v = 0; v < 27; v++){
-			for(int h = 0; h < 21; h++){
-				if(simpleMap){
-					if(!walkable(map[v][h]))
-						vi->drawRect(H(0), V(0), 8, 8, RGB565(0, 74, 241));
-				}else{
-					switch(map[v][h]){
-						case pd:
-							vi->drawRect(H(3), V(3), 2, 2, RGB565(255, 165, 0));
-							break;
-						case c1:
-							vi->drawLine(H(4), V(2), H(7), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(4), H(2), V(7), RGB565(0, 74, 241));
-							vi->drawPixel(H(3), V(3), RGB565(0, 74, 241));
-							vi->drawLine(H(6), V(5), H(7), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(6), H(5), V(7), RGB565(0, 74, 241));
-							break;
-						case c2:
-							vi->drawLine(H(0), V(2), H(3), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(4), H(5), V(7), RGB565(0, 74, 241));
-							vi->drawPixel(H(4), V(3), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(5), H(1), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(5), H(2), V(7), RGB565(0, 74, 241));
-							break;
-						case c3:
-							vi->drawLine(H(2), V(0), H(2), V(3), RGB565(0, 74, 241));
-							vi->drawLine(H(4), V(5), H(7), V(5), RGB565(0, 74, 241));
-							vi->drawPixel(H(3), V(4), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(0), H(5), V(1), RGB565(0, 74, 241));
-							vi->drawLine(H(6), V(2), H(7), V(2), RGB565(0, 74, 241));
-							break;
-						case c4:
-							vi->drawLine(H(5), V(0), H(5), V(3), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(5), H(3), V(5), RGB565(0, 74, 241));
-							vi->drawPixel(H(4), V(4), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(0), H(2), V(1), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(2), H(1), V(2), RGB565(0, 74, 241));
-							break;
-						case ph:
-							vi->drawLine(H(0), V(2), H(7), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(5), H(7), V(5), RGB565(0, 74, 241));
-							break;
-						case pv:
-							vi->drawLine(H(2), V(0), H(2), V(7), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(0), H(5), V(7), RGB565(0, 74, 241));
-							break;
-						case tu:
-							vi->drawLine(H(0), V(5), H(7), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(2), H(1), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(6), V(2), H(7), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(0), H(2), V(1), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(0), H(5), V(1), RGB565(0, 74, 241));
-							break;
-						case td:
-							vi->drawLine(H(0), V(2), H(7), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(5), H(1), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(6), V(5), H(7), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(6), H(2), V(7), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(6), H(5), V(7), RGB565(0, 74, 241));
-							break;
-						case tl:
-							vi->drawLine(H(5), V(0), H(5), V(7), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(0), H(2), V(1), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(2), H(1), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(5), H(1), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(2), V(6), H(2), V(7), RGB565(0, 74, 241));
-							break;
-						case tr:
-							vi->drawLine(H(2), V(0), H(2), V(7), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(0), H(5), V(1), RGB565(0, 74, 241));
-							vi->drawLine(H(6), V(2), H(7), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(6), V(5), H(7), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(6), H(5), V(7), RGB565(0, 74, 241));
-							break;
-						case cu:
-							vi->drawLine(H(2), V(0), H(2), V(3), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(0), H(5), V(3), RGB565(0, 74, 241));
-							vi->drawLine(H(3), V(4), H(4), V(4), RGB565(0, 74, 241));
-							break;
-						case cd:
-							vi->drawLine(H(2), V(4), H(2), V(7), RGB565(0, 74, 241));
-							vi->drawLine(H(5), V(4), H(5), V(7), RGB565(0, 74, 241));
-							vi->drawLine(H(3), V(3), H(4), V(3), RGB565(0, 74, 241));
-							break;
-						case cl:
-							vi->drawLine(H(0), V(2), H(3), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(0), V(5), H(3), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(4), V(3), H(4), V(4), RGB565(0, 74, 241));
-							break;
-						case cr:
-							vi->drawLine(H(4), V(2), H(7), V(2), RGB565(0, 74, 241));
-							vi->drawLine(H(4), V(5), H(7), V(5), RGB565(0, 74, 241));
-							vi->drawLine(H(3), V(3), H(3), V(4), RGB565(0, 74, 241));
-							break;
-						default: break;
-					}
+		for(int h = 0; h < 21; h++){
+			if(simpleMap){ // for testing
+				if(!walkable(map[v][h]))
+					vi->drawRect(H(0), V(0), 8, 8, RGB565(0, 74, 241));
+			}else{
+				switch(map[v][h]){
+					case pd:
+						vi->drawRect(H(3), V(3), 2, 2, RGB565(255, 165, 0));
+						break;
+					case c1:
+						vi->drawLine(H(4), V(2), H(7), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(4), H(2), V(7), RGB565(0, 74, 241));
+						vi->drawPixel(H(3), V(3), RGB565(0, 74, 241));
+						vi->drawLine(H(6), V(5), H(7), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(6), H(5), V(7), RGB565(0, 74, 241));
+						break;
+					case c2:
+						vi->drawLine(H(0), V(2), H(3), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(4), H(5), V(7), RGB565(0, 74, 241));
+						vi->drawPixel(H(4), V(3), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(5), H(1), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(5), H(2), V(7), RGB565(0, 74, 241));
+						break;
+					case c3:
+						vi->drawLine(H(2), V(0), H(2), V(3), RGB565(0, 74, 241));
+						vi->drawLine(H(4), V(5), H(7), V(5), RGB565(0, 74, 241));
+						vi->drawPixel(H(3), V(4), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(0), H(5), V(1), RGB565(0, 74, 241));
+						vi->drawLine(H(6), V(2), H(7), V(2), RGB565(0, 74, 241));
+						break;
+					case c4:
+						vi->drawLine(H(5), V(0), H(5), V(3), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(5), H(3), V(5), RGB565(0, 74, 241));
+						vi->drawPixel(H(4), V(4), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(0), H(2), V(1), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(2), H(1), V(2), RGB565(0, 74, 241));
+						break;
+					case ph:
+						vi->drawLine(H(0), V(2), H(7), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(5), H(7), V(5), RGB565(0, 74, 241));
+						break;
+					case pv:
+						vi->drawLine(H(2), V(0), H(2), V(7), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(0), H(5), V(7), RGB565(0, 74, 241));
+						break;
+					case tu:
+						vi->drawLine(H(0), V(5), H(7), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(2), H(1), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(6), V(2), H(7), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(0), H(2), V(1), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(0), H(5), V(1), RGB565(0, 74, 241));
+						break;
+					case td:
+						vi->drawLine(H(0), V(2), H(7), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(5), H(1), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(6), V(5), H(7), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(6), H(2), V(7), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(6), H(5), V(7), RGB565(0, 74, 241));
+						break;
+					case tl:
+						vi->drawLine(H(5), V(0), H(5), V(7), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(0), H(2), V(1), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(2), H(1), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(5), H(1), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(2), V(6), H(2), V(7), RGB565(0, 74, 241));
+						break;
+					case tr:
+						vi->drawLine(H(2), V(0), H(2), V(7), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(0), H(5), V(1), RGB565(0, 74, 241));
+						vi->drawLine(H(6), V(2), H(7), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(6), V(5), H(7), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(6), H(5), V(7), RGB565(0, 74, 241));
+						break;
+					case cu:
+						vi->drawLine(H(2), V(0), H(2), V(3), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(0), H(5), V(3), RGB565(0, 74, 241));
+						vi->drawLine(H(3), V(4), H(4), V(4), RGB565(0, 74, 241));
+						break;
+					case cd:
+						vi->drawLine(H(2), V(4), H(2), V(7), RGB565(0, 74, 241));
+						vi->drawLine(H(5), V(4), H(5), V(7), RGB565(0, 74, 241));
+						vi->drawLine(H(3), V(3), H(4), V(3), RGB565(0, 74, 241));
+						break;
+					case cl:
+						vi->drawLine(H(0), V(2), H(3), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(0), V(5), H(3), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(4), V(3), H(4), V(4), RGB565(0, 74, 241));
+						break;
+					case cr:
+						vi->drawLine(H(4), V(2), H(7), V(2), RGB565(0, 74, 241));
+						vi->drawLine(H(4), V(5), H(7), V(5), RGB565(0, 74, 241));
+						vi->drawLine(H(3), V(3), H(3), V(4), RGB565(0, 74, 241));
+						break;
+					default: break;
 				}
-
 			}
+
 		}
+	}
 };
 

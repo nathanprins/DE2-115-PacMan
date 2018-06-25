@@ -20,9 +20,9 @@ class PacMan : public Entity {
 		uint16_t getColor(int frame, e_dir_t dir, int x, int y);
 		void _draw(VideoInterface* vi);
 		void _update(int elapsedTime);
-		int frame = 0;
-		int lastFrame = 0;
-		int frameDir = 1;
+		int curr_frame = 0;
+		int last_frame = 0;
+		int frame_dir = 1;
 		bool bmp[3][12][12] = {
 			{
 				{0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
@@ -44,8 +44,8 @@ class PacMan : public Entity {
 				{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
 				{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
 				{1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
-				{1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-				{1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+				{1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+				{1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
 				{1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
 				{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
 				{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
