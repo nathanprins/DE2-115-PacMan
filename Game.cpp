@@ -15,11 +15,14 @@ Game::Game(ControllerInterface* control, VideoInterface* video) : ci(control), v
 
 void Game::update(int elapsedTime){
 	if(state == LEVEL_RUN){
+
+		int up, down, left, right;
+		distanceToWalls(&player, &up, &down, &left, &right);
 		switch(ci->getActiveButton()){
-			case BUTTON_UP: player.setDir(DIR_UP); break;
-			case BUTTON_DOWN: player.setDir(DIR_DOWN); break;
-			case BUTTON_LEFT: player.setDir(DIR_LEFT); break;
-			case BUTTON_RIGHT: player.setDir(DIR_RIGHT); break;
+			case BUTTON_UP: if(up) player.setDir(DIR_UP); break;
+			case BUTTON_DOWN: if(down) player.setDir(DIR_DOWN); break;
+			case BUTTON_LEFT: if(left) player.setDir(DIR_LEFT); break;
+			case BUTTON_RIGHT: if(right) player.setDir(DIR_RIGHT); break;
 			default: break;
 		}
 		updateMovement(&player, elapsedTime);

@@ -17,6 +17,7 @@ class PacMan : public Entity {
 	public:
 		PacMan(int x, int y);
 	private:
+		uint16_t getColor(int frame, e_dir_t dir, int x, int y);
 		void _draw(VideoInterface* vi);
 		void _update(int elapsedTime);
 		int frame = 0;
