@@ -1,5 +1,5 @@
 obj/default/Game.o: Game.cpp Game.h ControllerInterface.h \
- VideoInterface.h PacMan.h Entity.h
+ VideoInterface.h PacMan.h Entity.h font.h
 
 Game.h:
 
@@ -10,3 +10,5 @@ VideoInterface.h:
 PacMan.h:
 
 Entity.h:
+
+font.h:

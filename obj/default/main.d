@@ -9,7 +9,7 @@ obj/default/main.o: main.cpp ../Pac-Man_bsp//HAL/inc/includes.h \
  ../Pac-Man_bsp//HAL/inc/sys/alt_llist.h \
  ../Pac-Man_bsp//HAL/inc/priv/alt_alarm.h \
  ../Pac-Man_bsp//UCOSII/inc/ucos_ii.h ../Pac-Man_bsp//HAL/inc/os_cpu.h \
- Game.h ControllerInterface.h VideoInterface.h PacMan.h Entity.h \
+ Game.h ControllerInterface.h VideoInterface.h PacMan.h Entity.h font.h \
  Keyboard.h ../Pac-Man_bsp//drivers/inc/altera_up_avalon_ps2.h \
  ../Pac-Man_bsp//HAL/inc/sys/alt_dev.h \
  ../Pac-Man_bsp//HAL/inc/sys/alt_llist.h \
@@ -55,6 +55,8 @@ VideoInterface.h:
 PacMan.h:
 
 Entity.h:
+
+font.h:
 
 Keyboard.h:
 

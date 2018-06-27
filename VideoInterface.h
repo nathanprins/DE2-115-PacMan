@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define RGB565(r, g, b) ((((r>>3)<<11) | ((g>>2)<<5) | (b>>3)))
+
 enum viLineAlg {
 	DDA,
 	BRESENHAM

@@ -13,19 +13,31 @@
 #include "VideoInterface.h"
 #include "PacMan.h"
 
+#include "font.h"
+
+
 #define H(x) (h*8)+x
 #define V(y) (v*8)+y
 #define SHORTEST(a, b) (a > b ? b : a)
 
-#define MAP_OFFSET_X 76
+#define MAP_OFFSET_X 46 // 76
 #define MAP_OFFSET_Y 12
+#define SCORE_OFFSET_X (MAP_OFFSET_X + (21 * 8) + 1)
+#define SCORE_OFFSET_Y (MAP_OFFSET_Y + 8)
+
+#define PAC_DOT_POINTS 10
+
+#define WALL_COLOR RGB565(0, 74, 241)
+#define PAC_DOT_COLOR RGB565(255, 165, 0)
+#define SCORE_TEXT_COLOR RGB565(172, 20, 0)
+#define SCORE_COLOR RGB565(255, 255, 255)
 
 typedef enum {
-	em, pd,
-	c1, c2, c3, c4,
-	ph, pv,
-	tu, td, tl, tr,
-	cu, cd, cl, cr
+	em, pd, ed, // empty, pacdot, eaten dot
+	c1, c2, c3, c4, // corner 1 to 4
+	ph, pv, // pipe horizontal and vertical
+	tu, td, tl, tr, // T fitting up down left right
+	cu, cd, cl, cr // cup fitting up down left right
 } map_item_t;
 
 typedef enum {
@@ -40,16 +52,23 @@ class Game {
 		void draw();
 	private:
 		void drawMap();
+		void drawText(int x, int y, char *text);
+		void drawChar(int x, int y, const bool bmp[7][7]);
+		void drawScoreText();
+		void drawScore();
 		void setInSquare(Entity* en, int xs, int ys);
 		void updateMovement(Entity* en, int elapsedTime);
 		void distanceToWalls(Entity* en, int* up, int* down, int* left, int* right);
+		bool distanceToEntry(Entity* en, int* distance);
 		bool walkable(map_item_t item);
 		ControllerInterface* ci;
 		VideoInterface* vi;
 		PacMan player = PacMan(8, 8);
 		game_state_t state = LEVEL_START;
-		uint8_t simpleMap = 0;
-		int points = 0;
+		bool simpleMap = false;
+		int score = 0;
+		int old_score = 0;
+		int high_score = 0;
 		map_item_t map[27][21] = {
 			{c1,ph,ph,ph,ph,ph,ph,ph,ph,ph,td,ph,ph,ph,ph,ph,ph,ph,ph,ph,c2},
 			{pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv},
@@ -71,7 +90,7 @@ class Game {
 			{c1,ph,ph,ph,c4,pd,cu,em,c3,ph,td,ph,c4,em,cu,pd,c3,ph,ph,ph,c2},
 			{pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv},
 			{pv,pd,cr,ph,c2,pd,cr,ph,cl,pd,cu,pd,cr,ph,cl,pd,c1,ph,cl,pd,pv},
-			{pv,pd,pd,pd,pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv,pd,pd,pd,pv},
+			{pv,em,pd,pd,pv,pd,pd,pd,pd,pd,em,pd,pd,pd,pd,pd,pv,pd,pd,em,pv},
 			{tr,ph,c2,pd,pv,pd,cd,pd,c1,ph,ph,ph,c2,pd,cd,pd,pv,pd,c1,ph,tl},
 			{tr,ph,c4,pd,cu,pd,pv,pd,c3,ph,td,ph,c4,pd,pv,pd,cu,pd,c3,ph,tl},
 			{pv,pd,pd,pd,pd,pd,pv,pd,pd,pd,pv,pd,pd,pd,pv,pd,pd,pd,pd,pd,pv},

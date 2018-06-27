@@ -21,22 +21,22 @@ uint16_t PacMan::getColor(int frame, e_dir_t dir, int x, int y){
 	if(y < 0 || y > this->height - 1)
 		return NULL;
 
+	uint8_t color_num;
 	switch(dir){
 	case DIR_NO_DIR:
 	case DIR_RIGHT:
-		return this->bmp[frame][y][x] ? PACMAN_COLOR : NULL;
+		color_num = this->bmp[frame][y][x]; break;
 	case DIR_LEFT:
-		return this->bmp[frame][y][this->width - 1 - x] ? PACMAN_COLOR : NULL;
+		color_num = this->bmp[frame][y][this->width - 1 - x]; break;
 	case DIR_DOWN:
-		return this->bmp[frame][x][y] ? PACMAN_COLOR : NULL;
+		color_num = this->bmp[frame][x][y]; break;
 	case DIR_UP:
-		return this->bmp[frame][x][this->height - 1 - y] ? PACMAN_COLOR : NULL;
+		color_num = this->bmp[frame][x][this->height - 1 - y]; break;
 	}
-	return NULL;
-}
+	if(color_num)
+		return this->bmp_colors[color_num - 1];
 
-static bool isBetween(int value, int low, int high){
-	return (value >= low && value <= high);
+	return NULL;
 }
 
 void PacMan::_draw(VideoInterface* vi){

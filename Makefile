@@ -151,6 +151,7 @@ CXX_SRCS += ControllerInterface.cpp
 CXX_SRCS += Game.cpp
 CXX_SRCS += Entity.cpp
 CXX_SRCS += PacMan.cpp
+CXX_SRCS += font.cpp
 ASM_SRCS :=
 
 
