@@ -15,6 +15,7 @@ Game::Game(ControllerInterface* control, VideoInterface* video) : ci(control), v
 
 void Game::update(int elapsedTime){
 <<<<<<< HEAD
+<<<<<<< HEAD
 	switch(state){
 //		case GAME_INIT: {
 //			printf("Game: Initializing\n\r");
@@ -59,9 +60,18 @@ void Game::update(int elapsedTime){
 			default: break;
 		}
 >>>>>>> parent of fc53817... Added working score count
+=======
+	if(state == LEVEL_RUN){
+		button_t button = ci->getActiveButton();
 
-			updateMovement(&player, elapsedTime);
+		e_dir_t next = buttonToDir(button);
+		if(next != DIR_NO_DIR)
+			player.setNextDir(next);
+>>>>>>> parent of 7c1199f... Added gamestates
 
+		updateMovement(&player, elapsedTime);
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 			int xs = player.getX() / 8.0;
 			int ys = player.getY() / 8.0;
@@ -82,40 +92,14 @@ void Game::update(int elapsedTime){
 			printf("Points: %d \n", points);
 			map[ys][xs] = em;
 >>>>>>> parent of fc53817... Added working score count
+=======
+		int xs = player.getX() / 8.0;
+		int ys = player.getY() / 8.0;
+		if(map[ys][xs] == pd){
+			score += PAC_DOT_POINTS;
+			map[ys][xs] = em;
+>>>>>>> parent of 7c1199f... Added gamestates
 		}
-//		case LEVEL_RESET: {
-//			printf("Game: Level reset\n\r");
-//			for(int h = 0; h < 21; h++){
-//				for(int v = 0; v < 27; v++){
-//					if(map[v][h] == ed)
-//						map[v][h] = pd;
-//				}
-//			}
-//			state = LEVEL_START;
-//			break;
-//		}
-	}
-};
-
-
-void Game::draw(){
-	switch(state){
-		case LEVEL_FIRST_DRAW:
-			printf("Game: First draw\n\r");
-			drawMap();
-			drawScoreText();
-			drawScore();
-			state = LEVEL_RUN;
-			break;
-		case LEVEL_RUN:
-			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
-			player.draw(vi);
-			vi->resetOffset();
-
-			if(cur_score != old_score)
-				drawScore();
-
-			break;
 	}
 };
 
@@ -172,6 +156,7 @@ bool Game::walkable(map_item_t item){
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> parent of 1c28ea3... Save before revert
@@ -225,15 +210,37 @@ void Game::draw(){
 			{0,1,0,0,0,0,0}
 		};
 		return excl[y][x];
+=======
+void Game::draw(){
+	switch(state){
+		case LEVEL_START:
+			setInSquare(&player, 10, 20);
+			drawMap();
+			drawScoreText();
+			drawScore();
+			state = LEVEL_RUN;
+			break;
+		case LEVEL_RUN:
+			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
+			player.draw(vi);
+			vi->resetOffset();
+
+			if(score != old_score)
+				drawScore();
+			break;
+>>>>>>> parent of 7c1199f... Added gamestates
 	}
-	return false;
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void Game::drawChar(int x, int y, char c){
+=======
+void Game::drawChar(int x, int y, const bool bmp[7][7]){
+>>>>>>> parent of 7c1199f... Added gamestates
 	for(int py = 0; py < 7; py++){
 		for(int px = 0; px < 7; px++){
-			if(getCharPixel(c, px, py)){
+			if(bmp[py][px]){
 				vi->drawPixel(x + px, y + py);
 			}
 		}
@@ -245,36 +252,40 @@ void Game::drawText(int x, int y, char *text){
 
 	char c = text[place];
 	while(c){
-		drawChar((place * 8) + x, y, c);
+		if(c >= 'A' && c <= 'Z'){
+			drawChar((place * 8) + x, y, bmp_letters[c - 'A']);
+		}
+		if(c >= '0' && c <= '9'){
+			drawChar((place * 8) + x, y, bmp_numbers[c - '0']);
+		}
+		if(c == '-'){
+			const bool dash[7][7] = {
+				{0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0},
+				{1,1,1,1,1,1,0},
+				{0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0}
+			};
+			drawChar((place * 8) + x, y, dash);
+		}
+		if(c == '!'){
+			const bool dash[7][7] = {
+				{0,0,0,1,1,1,0},
+				{0,0,0,1,1,1,0},
+				{0,0,1,1,1,0,0},
+				{0,0,1,1,0,0,0},
+				{0,0,1,0,0,0,0},
+				{0,0,0,0,0,0,0},
+				{0,1,0,0,0,0,0}
+			};
+			drawChar((place * 8) + x, y, dash);
+		}
 
 		c = text[++place];
 	}
-};
-
-void Game::drawTextDifference(int x, int y, char *t1, char *t2){
-	int place = 0;
-
-	char c1 = t1[place];
-	char c2 = t2[place];
-	while(c1){
-//		if(c1 != c2){
-			bool p1, p2;
-			for(int py = 0; py < 7; py++){
-				for(int px = 0; px < 7; px++){
-					p1 = getCharPixel(c1, px, py);
-					p2 = getCharPixel(c2, px, py);
-					if(p1 && !p2)
-						vi->drawPixel((x + (place * 8) + px), (y + py), 0);
-					if(p2)
-						vi->drawPixel((x + (place * 8) + px), (y + py));
-				}
-			}
-//		}
-
-		place++;
-		c1 = t1[place];
-		c2 = t2[place];
-	}
+	printf("Len: %d \n\r", place);
 };
 
 void Game::drawScoreText(){
@@ -292,26 +303,21 @@ void Game::drawScore(){
 	vi->setOffset(SCORE_OFFSET_X, SCORE_OFFSET_Y);
 	vi->setColor(SCORE_COLOR);
 
-	char text_old[8] = { 0 };
-	char text_new[8] = { 0 };
+	char text[8] = { 0 };
 
-	if(cur_score > cur_hscore){
-		cur_hscore = cur_score;
+	sprintf(text, "%*d", 7, score);
+
+	if(score > high_score){
+		high_score = score;
 	}
 
-	if(cur_hscore != old_hscore){
-		sprintf(text_old, "%*d", 7, old_hscore);
-		sprintf(text_new, "%*d", 7, cur_hscore);
-		drawTextDifference(0, 16, text_old, text_new);
-		old_hscore = cur_hscore;
-	}
+	vi->drawRect(0, 16, 7 * 8, 7, 0);
+	drawText(0, 16, text);
 
-	if(cur_score != old_score){
-		sprintf(text_old, "%*d", 7, old_score);
-		sprintf(text_new, "%*d", 7, cur_score);
-		drawTextDifference(0, 48, text_old, text_new);
-		old_score = cur_score;
-	}
+	vi->drawRect(0, 48, 7 * 8, 7, 0);
+	drawText(0, 48, text);
+
+	old_score = score;
 
 	vi->resetOffset();
 };
@@ -412,9 +418,6 @@ void Game::drawMap(){
 						vi->drawLine(H(4), V(2), H(7), V(2), RGB565(0, 74, 241));
 						vi->drawLine(H(4), V(5), H(7), V(5), RGB565(0, 74, 241));
 						vi->drawLine(H(3), V(3), H(3), V(4), RGB565(0, 74, 241));
-						break;
-					case gc:
-						vi->drawLine(H(-3), V(4), H(10), V(4), WALL_COLOR);
 						break;
 					default: break;
 				}

@@ -26,6 +26,7 @@ typedef enum {
 	c1, c2, c3, c4, // corner 1 to 4
 	ph, pv, // pipe horizontal and vertical
 	tu, td, tl, tr, // T fitting up down left right
+<<<<<<< HEAD
 	cu, cd, cl, cr, // cup fitting up down left right
 	gc // gate center
 =======
@@ -35,13 +36,13 @@ typedef enum {
 	tu, td, tl, tr,
 	cu, cd, cl, cr
 >>>>>>> parent of fc53817... Added working score count
+=======
+	cu, cd, cl, cr // cup fitting up down left right
+>>>>>>> parent of 7c1199f... Added gamestates
 } map_item_t;
 
 typedef enum {
-	GAME_INIT,
-	LEVEL_RESET,
 	LEVEL_START,
-	LEVEL_FIRST_DRAW,
 	LEVEL_RUN
 } game_state_t;
 
@@ -53,10 +54,13 @@ class Game {
 	private:
 		void drawMap();
 <<<<<<< HEAD
+<<<<<<< HEAD
 		bool getCharPixel(char c, int x, int y);
 		void drawTextDifference(int x, int y, char *t1, char *t2);
+=======
+>>>>>>> parent of 7c1199f... Added gamestates
 		void drawText(int x, int y, char *text);
-		void drawChar(int x, int y, char c);
+		void drawChar(int x, int y, const bool bmp[7][7]);
 		void drawScoreText();
 		void drawScore();
 =======
@@ -71,8 +75,9 @@ class Game {
 		game_state_t state = LEVEL_START;
 <<<<<<< HEAD
 		bool simpleMap = false;
-		int cur_score = 0;
+		int score = 0;
 		int old_score = 0;
+<<<<<<< HEAD
 		int cur_hscore = 570;
 		int old_hscore = 0;
 		int max_pds = 0;
@@ -81,6 +86,9 @@ class Game {
 		uint8_t simpleMap = 0;
 		int points = 0;
 >>>>>>> parent of fc53817... Added working score count
+=======
+		int high_score = 0;
+>>>>>>> parent of 7c1199f... Added gamestates
 		map_item_t map[27][21] = {
 			{c1,ph,ph,ph,ph,ph,ph,ph,ph,ph,td,ph,ph,ph,ph,ph,ph,ph,ph,ph,c2},
 			{pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv,pd,pd,pd,pd,pd,pd,pd,pd,pd,pv},
@@ -93,7 +101,7 @@ class Game {
 			{pv,pd,pd,pd,pd,pd,pv,pd,pd,pd,pv,pd,pd,pd,pv,pd,pd,pd,pd,pd,pv},
 			{c3,ph,ph,ph,c2,pd,tr,ph,cl,em,cu,em,cr,ph,tl,pd,c1,ph,ph,ph,c4},
 			{em,em,em,em,pv,pd,pv,em,em,em,em,em,em,em,pv,pd,pv,em,em,em,em},
-			{em,em,em,em,pv,pd,pv,em,c1,cl,gc,cr,c2,em,pv,pd,pv,em,em,em,em},
+			{em,em,em,em,pv,pd,pv,em,c1,cl,em,cr,c2,em,pv,pd,pv,em,em,em,em},
 			{cr,ph,ph,ph,c4,pd,cu,em,pv,em,em,em,pv,em,cu,pd,c3,ph,ph,ph,cl},
 			{em,em,em,em,em,pd,em,em,pv,em,em,em,pv,em,em,em,em,em,em,em,em},
 			{cr,ph,ph,ph,c2,pd,cd,em,c3,ph,ph,ph,c4,em,cd,pd,c1,ph,ph,ph,cl},
