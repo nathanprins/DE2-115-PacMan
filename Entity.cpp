@@ -25,12 +25,7 @@ void Entity::draw(VideoInterface* vi){
 	}
 }
 
-void Entity::setNextDir(e_dir_t dir){
-	this->next_dir = dir;
-	this->redraw = 1;
-};
-
-void Entity::setCurrDir(e_dir_t dir){
+void Entity::setDir(e_dir_t dir){
 	this->curr_dir = dir;
 	this->redraw = 1;
 };
@@ -53,10 +48,6 @@ int Entity::getY(){
 	return y;
 };
 
-e_dir_t Entity::getCurrDir(){
+e_dir_t Entity::getDir(){
 	return curr_dir;
-};
-
-e_dir_t Entity::getNextDir(){
-	return next_dir;
 };

@@ -11,7 +11,7 @@
 #include "Entity.h"
 #include <stdio.h>
 
-#define PACMAN_COLOR (uint16_t)RGB565(255, 165, 0)
+#define PACMAN_COLOR 0xFEC0
 
 class PacMan : public Entity {
 	public:
@@ -23,10 +23,7 @@ class PacMan : public Entity {
 		int curr_frame = 0;
 		int last_frame = 0;
 		int frame_dir = 1;
-		uint16_t bmp_colors[1] = {
-			PACMAN_COLOR
-		};
-		uint8_t bmp[3][12][12] = {
+		bool bmp[3][12][12] = {
 			{
 				{0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},
 				{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},

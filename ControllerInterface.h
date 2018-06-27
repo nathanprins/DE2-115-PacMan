@@ -8,6 +8,8 @@
 #ifndef CONTROLLERINTERFACE_H_
 #define CONTROLLERINTERFACE_H_
 
+#define RGB565(r, g, b) ((((r>>3)<<11) | ((g>>2)<<5) | (b>>3)))
+
 typedef enum {
 	BUTTON_NO_BUTTON,
 	BUTTON_UP,
