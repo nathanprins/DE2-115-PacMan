@@ -23,21 +23,84 @@ static e_dir_t buttonToDir(button_t button){
 }
 
 void Game::update(int elapsedTime){
-	if(state == LEVEL_RUN){
-		button_t button = ci->getActiveButton();
+	switch(state){
+//		case GAME_INIT: {
+//			printf("Game: Initializing\n\r");
+//			// Count pacdots in on map
+//			for(int h = 0; h < 21; h++){
+//				for(int v = 0; v < 27; v++){
+//					if(map[v][h] == pd)
+//						max_pds++;
+//				}
+//			}
+//			printf("Max PDS: %d \n\r", max_pds);
+//			state = LEVEL_START;
+//			break;
+//		}
+		case LEVEL_START: {
+			printf("Game: Level started\n\r");
 
-		e_dir_t next = buttonToDir(button);
-		if(next != DIR_NO_DIR)
-			player.setNextDir(next);
+			setInSquare(&player, 10, 20);
 
-		updateMovement(&player, elapsedTime);
-
-		int xs = player.getX() / 8.0;
-		int ys = player.getY() / 8.0;
-		if(map[ys][xs] == pd){
-			score += PAC_DOT_POINTS;
-			map[ys][xs] = em;
+			state = LEVEL_FIRST_DRAW;
+			break;
 		}
+		case LEVEL_RUN: {
+			button_t button = ci->getActiveButton();
+
+			e_dir_t next = buttonToDir(button);
+			if(next != DIR_NO_DIR){
+				printf("press");
+				player.setNextDir(next);
+			}
+
+			updateMovement(&player, elapsedTime);
+
+			int xs = player.getX() / 8.0;
+			int ys = player.getY() / 8.0;
+			if(map[ys][xs] == pd){
+				cur_score += PAC_DOT_POINTS;
+				cur_pds++;
+				map[ys][xs] = ed;
+			}
+//			if(cur_pds >= max_pds){
+//				state = LEVEL_RESET;
+//			}
+			break;
+		}
+//		case LEVEL_RESET: {
+//			printf("Game: Level reset\n\r");
+//			for(int h = 0; h < 21; h++){
+//				for(int v = 0; v < 27; v++){
+//					if(map[v][h] == ed)
+//						map[v][h] = pd;
+//				}
+//			}
+//			state = LEVEL_START;
+//			break;
+//		}
+	}
+};
+
+
+void Game::draw(){
+	switch(state){
+		case LEVEL_FIRST_DRAW:
+			printf("Game: First draw\n\r");
+			drawMap();
+			drawScoreText();
+			drawScore();
+			state = LEVEL_RUN;
+			break;
+		case LEVEL_RUN:
+			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
+			player.draw(vi);
+			vi->resetOffset();
+
+			if(cur_score != old_score)
+				drawScore();
+
+			break;
 	}
 };
 
@@ -173,30 +236,49 @@ bool Game::walkable(map_item_t item){
 	return (item == em || item == pd);
 };
 
-void Game::draw(){
-	switch(state){
-		case LEVEL_START:
-			setInSquare(&player, 10, 20);
-			drawMap();
-			drawScoreText();
-			drawScore();
-			state = LEVEL_RUN;
-			break;
-		case LEVEL_RUN:
-			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
-			player.draw(vi);
-			vi->resetOffset();
+bool Game::getCharPixel(char c, int x, int y){
+	if(x < 0 || x > 7)
+		return false;
+	if(y < 0 || y > 7)
+		return false;
 
-			if(score != old_score)
-				drawScore();
-			break;
+	if(c >= 'A' && c <= 'Z'){
+		return bmp_letters[c - 'A'][y][x];
 	}
+	if(c >= '0' && c <= '9'){
+		return bmp_numbers[c - '0'][y][x];
+	}
+	if(c == '-'){
+		const bool dash[7][7] = {
+			{0,0,0,0,0,0,0},
+			{0,0,0,0,0,0,0},
+			{0,0,0,0,0,0,0},
+			{1,1,1,1,1,1,0},
+			{0,0,0,0,0,0,0},
+			{0,0,0,0,0,0,0},
+			{0,0,0,0,0,0,0}
+		};
+		return dash[y][x];
+	}
+	if(c == '!'){
+		const bool excl[7][7] = {
+			{0,0,0,1,1,1,0},
+			{0,0,0,1,1,1,0},
+			{0,0,1,1,1,0,0},
+			{0,0,1,1,0,0,0},
+			{0,0,1,0,0,0,0},
+			{0,0,0,0,0,0,0},
+			{0,1,0,0,0,0,0}
+		};
+		return excl[y][x];
+	}
+	return false;
 };
 
-void Game::drawChar(int x, int y, const bool bmp[7][7]){
+void Game::drawChar(int x, int y, char c){
 	for(int py = 0; py < 7; py++){
 		for(int px = 0; px < 7; px++){
-			if(bmp[py][px]){
+			if(getCharPixel(c, px, py)){
 				vi->drawPixel(x + px, y + py);
 			}
 		}
@@ -208,40 +290,36 @@ void Game::drawText(int x, int y, char *text){
 
 	char c = text[place];
 	while(c){
-		if(c >= 'A' && c <= 'Z'){
-			drawChar((place * 8) + x, y, bmp_letters[c - 'A']);
-		}
-		if(c >= '0' && c <= '9'){
-			drawChar((place * 8) + x, y, bmp_numbers[c - '0']);
-		}
-		if(c == '-'){
-			const bool dash[7][7] = {
-				{0,0,0,0,0,0,0},
-				{0,0,0,0,0,0,0},
-				{0,0,0,0,0,0,0},
-				{1,1,1,1,1,1,0},
-				{0,0,0,0,0,0,0},
-				{0,0,0,0,0,0,0},
-				{0,0,0,0,0,0,0}
-			};
-			drawChar((place * 8) + x, y, dash);
-		}
-		if(c == '!'){
-			const bool dash[7][7] = {
-				{0,0,0,1,1,1,0},
-				{0,0,0,1,1,1,0},
-				{0,0,1,1,1,0,0},
-				{0,0,1,1,0,0,0},
-				{0,0,1,0,0,0,0},
-				{0,0,0,0,0,0,0},
-				{0,1,0,0,0,0,0}
-			};
-			drawChar((place * 8) + x, y, dash);
-		}
+		drawChar((place * 8) + x, y, c);
 
 		c = text[++place];
 	}
-	printf("Len: %d \n\r", place);
+};
+
+void Game::drawTextDifference(int x, int y, char *t1, char *t2){
+	int place = 0;
+
+	char c1 = t1[place];
+	char c2 = t2[place];
+	while(c1){
+//		if(c1 != c2){
+			bool p1, p2;
+			for(int py = 0; py < 7; py++){
+				for(int px = 0; px < 7; px++){
+					p1 = getCharPixel(c1, px, py);
+					p2 = getCharPixel(c2, px, py);
+					if(p1 && !p2)
+						vi->drawPixel((x + (place * 8) + px), (y + py), 0);
+					if(p2)
+						vi->drawPixel((x + (place * 8) + px), (y + py));
+				}
+			}
+//		}
+
+		place++;
+		c1 = t1[place];
+		c2 = t2[place];
+	}
 };
 
 void Game::drawScoreText(){
@@ -259,21 +337,26 @@ void Game::drawScore(){
 	vi->setOffset(SCORE_OFFSET_X, SCORE_OFFSET_Y);
 	vi->setColor(SCORE_COLOR);
 
-	char text[8] = { 0 };
+	char text_old[8] = { 0 };
+	char text_new[8] = { 0 };
 
-	sprintf(text, "%*d", 7, score);
-
-	if(score > high_score){
-		high_score = score;
+	if(cur_score > cur_hscore){
+		cur_hscore = cur_score;
 	}
 
-	vi->drawRect(0, 16, 7 * 8, 7, 0);
-	drawText(0, 16, text);
+	if(cur_hscore != old_hscore){
+		sprintf(text_old, "%*d", 7, old_hscore);
+		sprintf(text_new, "%*d", 7, cur_hscore);
+		drawTextDifference(0, 16, text_old, text_new);
+		old_hscore = cur_hscore;
+	}
 
-	vi->drawRect(0, 48, 7 * 8, 7, 0);
-	drawText(0, 48, text);
-
-	old_score = score;
+	if(cur_score != old_score){
+		sprintf(text_old, "%*d", 7, old_score);
+		sprintf(text_new, "%*d", 7, cur_score);
+		drawTextDifference(0, 48, text_old, text_new);
+		old_score = cur_score;
+	}
 
 	vi->resetOffset();
 };
@@ -373,6 +456,9 @@ void Game::drawMap(){
 						vi->drawLine(H(4), V(2), H(7), V(2), WALL_COLOR);
 						vi->drawLine(H(4), V(5), H(7), V(5), WALL_COLOR);
 						vi->drawLine(H(3), V(3), H(3), V(4), WALL_COLOR);
+						break;
+					case gc:
+						vi->drawLine(H(-3), V(4), H(10), V(4), WALL_COLOR);
 						break;
 					default: break;
 				}
