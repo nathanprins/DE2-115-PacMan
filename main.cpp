@@ -39,7 +39,7 @@
 #include <string.h>
 
 /* Definition of Task Stacks */
-#define   TASK_STACKSIZE       2048
+#define   TASK_STACKSIZE       4096
 OS_STK    task1_stk[TASK_STACKSIZE];
 OS_STK    task2_stk[TASK_STACKSIZE];
 OS_STK    task3_stk[TASK_STACKSIZE];
@@ -70,9 +70,9 @@ int main(void){
 	Keyboard kb;
 	Game game(&kb, &vga);
 
-	OSTaskCreate(gfxLoop,  (void*) &game, &task1_stk[TASK_STACKSIZE-1],  TASK1_PRIORITY);
-	OSTaskCreate(inputLoop,(void*) &kb, &task2_stk[TASK_STACKSIZE-1],  TASK2_PRIORITY);
-	OSTaskCreate(GameLoop, (void*) &game, &task3_stk[TASK_STACKSIZE-1],  TASK3_PRIORITY);
+	OSTaskCreate(GameLoop, (void*) &game, &task3_stk[TASK_STACKSIZE-1],  TASK1_PRIORITY);
+	OSTaskCreate(gfxLoop,  (void*) &game, &task1_stk[TASK_STACKSIZE-1],  TASK2_PRIORITY);
+	OSTaskCreate(inputLoop,(void*) &kb, &task2_stk[TASK_STACKSIZE-1],  TASK3_PRIORITY);
 
 	OSStart();
 	return 0;
