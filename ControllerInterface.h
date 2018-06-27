@@ -15,7 +15,9 @@ typedef enum {
 	BUTTON_LEFT,
 	BUTTON_RIGHT,
 	BUTTON_A,
-	BUTTON_B
+	BUTTON_B,
+	BUTTON_RESET,
+	BUTTON_ENTER
 } button_t;
 
 class ControllerInterface {

@@ -34,6 +34,7 @@
 
 typedef enum {
 	em, pd, ed, // empty, pacdot, eaten dot
+	walk_tag, // walkable items ^, non walkable items v = tag used for discerning difference between walkable and non walkable map items
 	c1, c2, c3, c4, // corner 1 to 4
 	ph, pv, // pipe horizontal and vertical
 	tu, td, tl, tr, // T fitting up down left right
@@ -43,6 +44,8 @@ typedef enum {
 
 typedef enum {
 	GAME_INIT,
+	HOMESCREEN_INIT,
+	HOMESCREEN,
 	LEVEL_RESET,
 	LEVEL_START,
 	LEVEL_FIRST_DRAW,
@@ -55,6 +58,7 @@ class Game {
 		void update(int elapsedTime);
 		void draw();
 	private:
+		void drawHomescreen();
 		void drawMap();
 		bool getCharPixel(char c, int x, int y);
 		void drawTextDifference(int x, int y, char *t1, char *t2);
@@ -70,7 +74,7 @@ class Game {
 		ControllerInterface* ci;
 		VideoInterface* vi;
 		PacMan player = PacMan(8, 8);
-		game_state_t state = LEVEL_START;
+		game_state_t state = GAME_INIT;
 		bool simpleMap = false;
 		int cur_score = 0;
 		int old_score = 0;

@@ -28,7 +28,7 @@ void Keyboard::update(){
 		byte2 = byte3;
 		byte3 = PS2_data;
 
-		//printf("%d-%d-%d \n\r", byte1, byte2, byte3);
+		printf("%d-%d-%d \n\r", byte1, byte2, byte3);
 		if(byte2 == 224 && byte3 == 107)
 			this->activeButton = BUTTON_LEFT;
 		if(byte2 == 224 && byte3 == 117)
@@ -37,6 +37,10 @@ void Keyboard::update(){
 			this->activeButton = BUTTON_RIGHT;
 		if(byte2 == 224 && byte3 == 114)
 			this->activeButton = BUTTON_DOWN;
+		if(byte2 == 45  && byte3 == 45 )
+			this->activeButton = BUTTON_RESET;
+		if(byte2 == 90  && byte3 == 90 )
+			this->activeButton = BUTTON_ENTER;
 //		if(byte2 == 41 && byte3 == 41) // SPACE
 //			pm->setDir(DIR_NO_DIR);
 	}

@@ -23,20 +23,33 @@ static e_dir_t buttonToDir(button_t button){
 }
 
 void Game::update(int elapsedTime){
+	button_t button = ci->getActiveButton();
+
+	if(button == BUTTON_RESET){
+		state = LEVEL_RESET;
+	}
 	switch(state){
-//		case GAME_INIT: {
-//			printf("Game: Initializing\n\r");
-//			// Count pacdots in on map
-//			for(int h = 0; h < 21; h++){
-//				for(int v = 0; v < 27; v++){
-//					if(map[v][h] == pd)
-//						max_pds++;
-//				}
-//			}
-//			printf("Max PDS: %d \n\r", max_pds);
+		case GAME_INIT: {
+			printf("Game: Initializing\n\r");
+			// Count pacdots in on map
+			for(int h = 0; h < 21; h++){
+				for(int v = 0; v < 27; v++){
+					if(map[v][h] == pd)
+						max_pds++;
+				}
+			}
+			printf("Max PacDot count in maze: %d \n\r", max_pds);
+
+			state = HOMESCREEN_INIT; // FIRST DRAW
+			break;
+		}
+		case HOMESCREEN: {
+			if(button == BUTTON_ENTER){
+				state = LEVEL_START;
+			}
 //			state = LEVEL_START;
-//			break;
-//		}
+			break;
+		}
 		case LEVEL_START: {
 			printf("Game: Level started\n\r");
 
@@ -46,11 +59,10 @@ void Game::update(int elapsedTime){
 			break;
 		}
 		case LEVEL_RUN: {
-			button_t button = ci->getActiveButton();
 
 			e_dir_t next = buttonToDir(button);
 			if(next != DIR_NO_DIR){
-				printf("press");
+				printf("press '%d' \n\r", next);
 				player.setNextDir(next);
 			}
 
@@ -63,36 +75,50 @@ void Game::update(int elapsedTime){
 				cur_pds++;
 				map[ys][xs] = ed;
 			}
-//			if(cur_pds >= max_pds){
-//				state = LEVEL_RESET;
-//			}
+			if(cur_pds >= max_pds){
+				state = LEVEL_RESET;
+			}
 			break;
 		}
-//		case LEVEL_RESET: {
-//			printf("Game: Level reset\n\r");
-//			for(int h = 0; h < 21; h++){
-//				for(int v = 0; v < 27; v++){
-//					if(map[v][h] == ed)
-//						map[v][h] = pd;
-//				}
-//			}
-//			state = LEVEL_START;
-//			break;
-//		}
+		case LEVEL_RESET: {
+			printf("Game: Level reset\n\r");
+			for(int h = 0; h < 21; h++){
+				for(int v = 0; v < 27; v++){
+					if(map[v][h] == ed)
+						map[v][h] = pd;
+				}
+			}
+			cur_pds = 0;
+			player.setCurrDir(DIR_NO_DIR);
+			updateMovement(&player, 0);
+			state = LEVEL_START;
+			break;
+		}
 	}
 };
 
 
 void Game::draw(){
 	switch(state){
-		case LEVEL_FIRST_DRAW:
+		case HOMESCREEN_INIT: {
+			drawHomescreen();
+			state = HOMESCREEN;
+			break;
+		}
+		case HOMESCREEN: {
+
+			break;
+		}
+		case LEVEL_FIRST_DRAW: {
 			printf("Game: First draw\n\r");
+			vi->clear(0);
 			drawMap();
 			drawScoreText();
 			drawScore();
 			state = LEVEL_RUN;
 			break;
-		case LEVEL_RUN:
+		}
+		case LEVEL_RUN: {
 			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
 			player.draw(vi);
 			vi->resetOffset();
@@ -101,7 +127,13 @@ void Game::draw(){
 				drawScore();
 
 			break;
+		}
 	}
+};
+
+void Game::drawHomescreen(){
+	vi->setColor(RGB565(255, 165, 0));
+	drawText(70, 100, "PRESS ENTER TO START!");
 };
 
 void Game::setInSquare(Entity* en, int xs, int ys){
@@ -233,7 +265,7 @@ void Game::updateMovement(Entity* en, int elapsedTime){
 };
 
 bool Game::walkable(map_item_t item){
-	return (item == em || item == pd);
+	return (item < walk_tag);
 };
 
 bool Game::getCharPixel(char c, int x, int y){
@@ -328,7 +360,6 @@ void Game::drawScoreText(){
 
 	drawText(0, 0, "HI-SCORE");
 	drawText(8 , 32, "1UP");
-//	drawText(8 , 32 * 2, "2UP");
 
 	vi->resetOffset();
 };
