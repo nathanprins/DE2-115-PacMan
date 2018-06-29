@@ -22,6 +22,16 @@ static e_dir_t buttonToDir(button_t button){
 	}
 }
 
+static double distanceBetweenEntities(Entity *en1, Entity *en2){
+	double x1 = (double)en1->getX();
+	double y1 = (double)en1->getY();
+	double x2 = (double)en2->getX();
+	double y2 = (double)en2->getY();
+	double ans = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+	printf("Distance: %f \n\r", ans);
+	return ans;
+}
+
 void Game::update(int elapsedTime){
 	button_t button = ci->getActiveButton();
 
@@ -53,12 +63,23 @@ void Game::update(int elapsedTime){
 		case LEVEL_START: {
 			printf("Game: Level started\n\r");
 
+			// Spawn in field
 			setInSquare(&player, 10, 20);
+			unJail(&ghosts[0]);
+
+			// Jailed
+			jail(&ghosts[1]);
+			jail(&ghosts[2]);
+			jail(&ghosts[3]);
+
+			old_hscore = 0; // redraw
+			time = 0;
 
 			state = LEVEL_FIRST_DRAW;
 			break;
 		}
 		case LEVEL_RUN: {
+			time += elapsedTime;
 
 			e_dir_t next = buttonToDir(button);
 			if(next != DIR_NO_DIR){
@@ -67,6 +88,21 @@ void Game::update(int elapsedTime){
 			}
 
 			updateMovement(&player, elapsedTime);
+
+			for(int g = 0; g < 4; g++){
+				if(distanceBetweenEntities(&player, &ghosts[g]) < 10.0){
+					state = LEVEL_DIED;
+				}
+				if(!ghosts[g].isJailed())
+					randomWalkAlgorithm(&ghosts[g]);
+				updateMovement(&ghosts[g], elapsedTime);
+			}
+
+			for(int g = 1; g < 4; g++){
+				if(time > (10000 * g) && ghosts[g].isJailed()) // each 10 seconds release new ghost
+					unJail(&ghosts[g]);
+			}
+
 
 			int xs = player.getX() / 8.0;
 			int ys = player.getY() / 8.0;
@@ -78,6 +114,12 @@ void Game::update(int elapsedTime){
 			if(cur_pds >= max_pds){
 				state = LEVEL_RESET;
 			}
+			break;
+		}
+		case LEVEL_DIED: {
+			printf("Died \n\r");
+			cur_score = 0;
+			state = LEVEL_RESET;
 			break;
 		}
 		case LEVEL_RESET: {
@@ -95,6 +137,95 @@ void Game::update(int elapsedTime){
 			break;
 		}
 	}
+};
+
+static void resetAvailable(e_dir_t *a){
+	for(int i = 0; i < 4; i++)
+		a[i] = DIR_NO_DIR;
+};
+static void appendAvailable(e_dir_t *a, e_dir_t dir){
+	for(int i = 0; i < 4; i++){
+		if(a[i] == DIR_NO_DIR){
+			a[i] = dir;
+			return;
+		}
+	}
+};
+static e_dir_t chooseFromAvailable(e_dir_t *a){
+	int count = 0;
+	for(int i = 0; i < 4; i++){
+		if(a[i] != DIR_NO_DIR){
+			count++;
+		}
+	}
+	if(count == 0)
+		return DIR_NO_DIR;
+
+	return a[rand() % count];
+};
+
+void Game::randomWalkAlgorithm(Ghost *g){
+	int xSq = g->getX() / 8.0;
+	int ySq = g->getY() / 8.0;
+
+	e_dir_t avail[4];
+	if(g->getCurrDir() == DIR_NO_DIR){
+		resetAvailable(avail);
+		if(walkable(map[ySq - 1][xSq]))
+			appendAvailable(avail, DIR_UP);
+		if(walkable(map[ySq][xSq + 1]))
+			appendAvailable(avail, DIR_RIGHT);
+		if(walkable(map[ySq + 1][xSq]))
+			appendAvailable(avail, DIR_DOWN);
+		if(walkable(map[ySq][xSq - 1]))
+			appendAvailable(avail, DIR_LEFT);
+
+		g->setNextDir(chooseFromAvailable(avail));
+	}
+
+	e_dir_t going = g->getCurrDir();
+	e_dir_t ignore;
+
+	int x_offset = 0;
+	int y_offset = 0;
+	switch(going){
+	case DIR_UP:
+		if(walkable(map[ySq - 1][xSq]))
+			y_offset = -1;
+		ignore = DIR_DOWN;
+		break;
+	case DIR_RIGHT:
+		if(walkable(map[ySq][xSq + 1]))
+			x_offset = 1;
+		ignore = DIR_LEFT;
+		break;
+	case DIR_DOWN:
+		if(walkable(map[ySq + 1][xSq]))
+			y_offset = 1;
+		ignore = DIR_UP;
+		break;
+	case DIR_LEFT:
+		if(walkable(map[ySq][xSq - 1]))
+			x_offset = -1;
+		ignore = DIR_RIGHT;
+		break;
+	}
+
+	resetAvailable(avail);
+
+	if(ignore != DIR_UP 	&& walkable(map[ySq + y_offset - 1][xSq + x_offset]))
+		appendAvailable(avail, DIR_UP);
+
+	if(ignore != DIR_RIGHT 	&& walkable(map[ySq + y_offset][xSq + x_offset + 1]))
+		appendAvailable(avail, DIR_RIGHT);
+
+	if(ignore != DIR_DOWN 	&& walkable(map[ySq + y_offset + 1][xSq + x_offset]))
+		appendAvailable(avail, DIR_DOWN);
+
+	if(ignore != DIR_LEFT	&& walkable(map[ySq + y_offset][xSq + x_offset - 1]))
+		appendAvailable(avail, DIR_LEFT);
+
+	g->setNextDir(chooseFromAvailable(avail));
 };
 
 
@@ -121,6 +252,20 @@ void Game::draw(){
 		case LEVEL_RUN: {
 			vi->setOffset(MAP_OFFSET_X, MAP_OFFSET_Y);
 			player.draw(vi);
+
+			for(int g = 0; g < 4; g++){
+				int xSq = ghosts[g].getX() / 8.0;
+				int ySq = ghosts[g].getY() / 8.0;
+				for(int mapy = -2; mapy < 3; mapy++){
+					for(int mapx = -2; mapx < 3; mapx++){
+						if(map[ySq + mapy][xSq + mapx] == pd){
+							vi->drawRect(((xSq + mapx) * 8) + 3, ((ySq + mapy) * 8) + 3, 2, 2, PAC_DOT_COLOR);
+						}
+					}
+				}
+				ghosts[g].draw(vi);
+			}
+
 			vi->resetOffset();
 
 			if(cur_score != old_score)
@@ -130,6 +275,15 @@ void Game::draw(){
 		}
 	}
 };
+
+void Game::unJail(Ghost *g){
+	g->setJailed(false);
+	setInSquare(g, 10, 10);
+}
+void Game::jail(Ghost *g){
+	g->setJailed(true);
+	setInSquare(g, 10, 13);
+}
 
 void Game::drawHomescreen(){
 	vi->setColor(RGB565(255, 165, 0));

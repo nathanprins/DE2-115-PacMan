@@ -152,6 +152,7 @@ CXX_SRCS += Game.cpp
 CXX_SRCS += Entity.cpp
 CXX_SRCS += PacMan.cpp
 CXX_SRCS += font.cpp
+CXX_SRCS += Ghost.cpp
 ASM_SRCS :=
 
 

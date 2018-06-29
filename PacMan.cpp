@@ -7,7 +7,7 @@
 
 #include "PacMan.h"
 
-PacMan::PacMan(int x, int y) : Entity(x, y) {
+PacMan::PacMan() : Entity(8, 8) {
 	this->width = 12;
 	this->height = 12;
 	this->curr_dir = DIR_NO_DIR;

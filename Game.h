@@ -12,6 +12,7 @@
 #include "ControllerInterface.h"
 #include "VideoInterface.h"
 #include "PacMan.h"
+#include "Ghost.h"
 
 #include "font.h"
 
@@ -49,7 +50,8 @@ typedef enum {
 	LEVEL_RESET,
 	LEVEL_START,
 	LEVEL_FIRST_DRAW,
-	LEVEL_RUN
+	LEVEL_RUN,
+	LEVEL_DIED
 } game_state_t;
 
 class Game {
@@ -71,14 +73,24 @@ class Game {
 		void distanceToWalls(Entity* en, int* up, int* down, int* left, int* right);
 		bool distanceToEntry(Entity* en, int* distance);
 		bool walkable(map_item_t item);
+		void unJail(Ghost *g);
+		void jail(Ghost *g);
+		void randomWalkAlgorithm(Ghost *g);
+		int time = 0;
 		ControllerInterface* ci;
 		VideoInterface* vi;
-		PacMan player = PacMan(8, 8);
+		PacMan player = PacMan();
+		Ghost ghosts[4] = {
+			Ghost(RGB565( 95,   0,   0)),
+			Ghost(RGB565(216, 184, 248)),
+			Ghost(RGB565( 60, 171, 255)),
+			Ghost(RGB565(177,  84,   0))
+		};
 		game_state_t state = GAME_INIT;
 		bool simpleMap = false;
 		int cur_score = 0;
 		int old_score = 0;
-		int cur_hscore = 570;
+		int cur_hscore = 0;
 		int old_hscore = 0;
 		int max_pds = 0;
 		int cur_pds = 0;
